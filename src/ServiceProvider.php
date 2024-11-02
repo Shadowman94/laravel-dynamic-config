@@ -65,17 +65,20 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         # Return the config entries containing ['dynamic'=>true] key
         collect(config()->all())->each(function ($value, $key) use (&$DefaultConfig) {
 
-            # Check if the current config key has dynamic key set to it, and it's true
-            if (array_key_exists(config('emadha.site-config.dynamic_key'), $value)
-                && $value[config('emadha.site-config.dynamic_key')] == true) {
+            #Check if value is array type.
+            if(is_array($value))
+            {
+                # Check if the current config key has dynamic key set to it, and it's true
+                if (array_key_exists(config('emadha.site-config.dynamic_key'), $value)
+                    && $value[config('emadha.site-config.dynamic_key')] == true) {
 
-                # unset that dynamic value
-                unset($value[config('emadha.site-config.dynamic_key')]);
+                    # unset that dynamic value
+                    unset($value[config('emadha.site-config.dynamic_key')]);
 
-                # Add that to the DynamicConfig collection
-                $DefaultConfig->put($key, $value);
+                    # Add that to the DynamicConfig collection
+                    $DefaultConfig->put($key, $value);
+                }
             }
-
         });
 
         # Keep the defaults for reference
