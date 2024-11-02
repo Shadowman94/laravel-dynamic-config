@@ -7,7 +7,7 @@ This Package makes it possible for users to have their config files stored in a 
 ## Installation
 You can install the package via composer:
 ``` bash
-composer require emadha/laravel-dynamic-config
+composer require shadowman94/laravel-dynamic-config
 ```
 The package will automatically register itself.
 

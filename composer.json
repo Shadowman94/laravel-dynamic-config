@@ -1,5 +1,5 @@
 {
-  "name": "emadha/laravel-dynamic-config",
+  "name": "shadowman94/laravel-dynamic-config",
   "description": "This Package makes it possible for users to have their config files stored in a database table, making it easier to customize these values from UI.",
   "type": "library",
   "require": {
@@ -10,6 +10,10 @@
     {
       "name": "Emad Ha",
       "email": "me@emadha.com"
+    },
+    {
+      "name": "Shadowman94",
+      "email": "shadowman@gtsystems.hu"
     }
   ],
   "minimum-stability": "dev",
