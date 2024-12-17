@@ -37,7 +37,7 @@ class DynamicConfig extends Model
      */
     public function setTo($value)
     {
-        return $this->update(['v' => $value]);
+        return $this->update(['value' => $value]);
     }
 
     /**
@@ -48,7 +48,7 @@ class DynamicConfig extends Model
     public function default()
     {
         return config(
-            config('emadha.site-config.defaults_key') . '.' . $this->k
+            config('emadha.site-config.defaults_key') . '.' . $this->key
         );
     }
 
@@ -61,17 +61,16 @@ class DynamicConfig extends Model
     public function revert()
     {
         return config($this->k)->setTo(
-            config(config('emadha.site-config.defaults_key') . '.' . $this->k)
+            config(config('emadha.site-config.defaults_key') . '.' . $this->key)
         );
     }
 
     /**
      * @return mixed|string
      */
-    public function __toString()
+    public function __toValue()
     {
-        return $this->v;
+        return $this->value;
     }
 
 }
-

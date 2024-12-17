@@ -90,10 +90,16 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         # Insert the flattened data into database
         foreach ($prefixedKeys as $_key => $_value) {
 
+            $_type = gettype($_value);
+
+            if(is_bool($_value))
+            {
+                $_value = $_value ? "true" : "false";
+            }
+
             # Get the row from database if it exists,
             # If not, add it using the value from the actual config file.
-            DynamicConfig::firstOrCreate(['k' => $_key], ['v' => $_value]);
-
+            DynamicConfig::firstOrCreate(['key' => $_key], ['value' => $_value, 'type' => $_type]);
         }
 
         # Build the Config array
@@ -103,12 +109,36 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         # and delete those if they don't exists in the actual config file
         if (config('emadha.site-config.auto_delete_orphan_keys') == true) {
 
+            $toCompare = [];
+
+            foreach($DynamicConfig->map->only(['key', 'value', 'type']) as $config)
+            {
+                $key = $config['key'];
+                $value = $config['value'];
+                $type = $config['type'];
+
+                if(strcmp($type, "boolean") == 0)
+                {
+                    if(strcmp($value, "false") == 0)
+                        $value = false;
+            
+                    if(strcmp($value, "true") == 0)
+                        $value = true;
+
+                    $toCompare[$key] = $value;
+                }
+                else
+                {
+                    settype($value, $type);
+                    $toCompare[$key] = $value;
+                }                
+            }
+
             # Check for orphan keys
-            $orphanKeys = array_diff_assoc($DynamicConfig->pluck('v', 'k')->toArray(), $prefixedKeys);
+            $orphanKeys = array_diff_assoc($toCompare, $prefixedKeys);
 
             # Delete orphan keys
-            DynamicConfig::whereIn('k', array_keys($orphanKeys))->delete();
-
+            DynamicConfig::whereIn('key', array_keys($orphanKeys))->delete();
         }
 
         # Store these config into the config() helper, but as model objects
@@ -116,9 +146,40 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         # example: config('app.name')->revert().
         # Available methods are `revert`, `default` and `setTo($value)`
         $DynamicConfig->map(function ($config) use ($DefaultConfig) {
-            config([$config->k => $config]);
-        });
 
+            $key = $config->key;
+            $value = $config->value;
+            $type = $config->type;
+
+            if(strcmp($type, "boolean") == 0)
+            {
+                if(strcmp($value, "false") == 0)
+                    $value = false;
+        
+                if(strcmp($value, "true") == 0)
+                    $value = true;
+            }
+            else
+            {
+                settype($value, $type);
+            }
+
+            $config->value = $value;
+
+            $pieces = explode(".", $key);
+            $cnt = count($pieces);
+
+            if(is_numeric($pieces[$cnt - 1]))
+            {
+                $index = intval($pieces[$cnt - 1]);
+
+                config($key, $config[$index]);
+            }
+            else
+            {
+                config([$key => $config]);
+            }
+        });
     }
 
     public function prefixKey($prefix, $array)

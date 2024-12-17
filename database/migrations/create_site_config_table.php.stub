@@ -16,8 +16,9 @@ class CreateSiteConfigTable extends Migration
         if (!Schema::hasTable(config('emadha.site-config.table'))) {
             Schema::create(config('emadha.site-config.table'), function (Blueprint $table) {
                 $table->bigIncrements('id');
-                $table->string('k', 500)->unique();
-                $table->text('v')->nullable();
+                $table->string('key', 500)->unique();
+                $table->text('value')->nullable();
+                $table->enum('type',['boolean', 'integer', 'double', 'string', 'array', 'object', 'resource', 'resource (closed)', 'NULL', 'unknown type']);
                 $table->timestamps();
             });
         }
