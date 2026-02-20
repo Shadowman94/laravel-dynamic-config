@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class DynamicConfig
  *
- * @property mixed v
+ * @property mixed value
  * @package EmadHa\DynamicConfig
  */
 class DynamicConfig extends Model
@@ -66,11 +66,30 @@ class DynamicConfig extends Model
     }
 
     /**
+     * Get the raw value (for use in model context).
+     *
      * @return mixed|string
      */
     public function __toValue()
     {
         return $this->value;
+    }
+
+    /**
+     * Get config value whether it is a DynamicConfig instance (scalar from DB) or array/other.
+     * Use this when the key may be either a scalar (returns model) or an array.
+     *
+     * @param string $key
+     * @param mixed  $default
+     * @return mixed
+     */
+    public static function value($key, $default = null)
+    {
+        $v = config($key, $default);
+        if ($v instanceof self) {
+            return $v->__toValue();
+        }
+        return $v;
     }
 
 }
