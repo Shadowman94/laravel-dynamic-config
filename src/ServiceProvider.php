@@ -171,9 +171,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
             if(is_numeric($pieces[$cnt - 1]))
             {
-                $index = intval($pieces[$cnt - 1]);
-
-                config($key, $config[$index]);
+                # Array element: set the casted value so config('parent.key') builds the array from DB
+                config([$key => $value]);
             }
             else
             {
